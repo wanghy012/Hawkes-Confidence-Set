@@ -16,15 +16,12 @@ ub = zeros(D,D);
 epsilon = epsilon/2/D/D;
 for i=1:D % for node i
     g_alpha = zeros(2*D,D); %g'(alpha_i hat)
-    g_alpha2 = zeros(2*D,D);
-    g_alpha3 = zeros(2*D,D);
     g_MLE = zeros(2*D,1);%g(alpha_i hat)
     I_hat = zeros(D,D); %t times the estimated Fisher Information at MLE.
     z = zeros(D,2*D);
     I_alpha = zeros(D,D,D);%symmetric. 3d tensor.
     V = zeros(2*D,1);
-    V_cum = zeros(2*D,length(t)-1);
-    V_2_approx = zeros(2*D,1);
+
     %update the values above each time an event happens
     for k=1:length(t)-1
         % compute z for [t(k),t(k+1)).
@@ -59,7 +56,7 @@ for i=1:D % for node i
         g_MLE = g_MLE - temp;
         V = V + temp;
 
-        %%update g_alpha till t(k+1)
+        %% update g_alpha till t(k+1)
         %%partial dS/partial alpha * z
         if u(k+1) == i
             g_alpha = g_alpha ...
@@ -70,25 +67,16 @@ for i=1:D % for node i
         if u(k+1) == i
             g_alpha = g_alpha + reshape(sum(z_alpha.*eta(:,k+1),1),2*D,D)/(mu(i)+A_MLE(i,:)*eta(:,k+1));
         end
-        
-        
-        
         %%partial V/partial alpha
         f = @(x) eta2'*exp(-x).*exp(z'*eta2*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x)))...
-            +(mu(i) + A_MLE(i,:)*eta2*exp(-x))...
-            *exp(z'*eta2*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x)))...
-            .*(reshape(sum(z_alpha.*eta2,1),2*D,D)*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x))...
-            -z'*eta2*exp(-x).*eta2'*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x))^2)...
+            +exp(z'*eta2*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x)))...
+            .*(reshape(sum(z_alpha.*eta2,1),2*D,D)*exp(-x)...
+            -z'*eta2*exp(-x).*eta2'*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x)))...
             -reshape(sum(z_alpha.*eta2,1),2*D,D)*exp(-x) - eta2'*exp(-x);
         temp = integral(f,0,t(k+1)-t(k),'ArrayValued',1);
         g_alpha = g_alpha - temp;
-        g_alpha3  = g_alpha3 -  temp;
-        f = @(x) eta2'*exp(-x).*exp(z'*eta2*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x)))...
-            -exp(z'*eta2*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x)))...
-            .*z'*eta2*exp(-x).*eta2'*exp(-x)/(mu(i) + A_MLE(i,:)*eta2*exp(-x))...
-            - eta2'*exp(-x);
-        g_alpha2 = g_alpha2 - integral(f,0,t(k+1)-t(k),'ArrayValued',1);
-        %%update I_hat and I_alpha
+        
+        %% update I_hat and I_alpha
         f = @(x) exp(-2*x)/(mu(i) + (A_MLE(i,:)*eta2)*exp(-x));
         I_hat = I_hat + eta2*eta2'*integral(f,0,t(k+1)-t(k),'ArrayValued',1);
        
