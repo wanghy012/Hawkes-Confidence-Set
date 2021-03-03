@@ -1,10 +1,10 @@
-function [t,u,Udst] = run(A,mu,T)
+function [t,u,eta] = run(A,mu,T)
 Mu = sum(mu);
 R = size(A,1);
 t = 0;
 u = 0;
 dst = zeros(R,1);
-Udst = zeros(R,1);
+eta = zeros(R,1);
 
 while 1
     gap = get_next(Mu,sum(dst));
@@ -26,11 +26,11 @@ while 1
     end
     u(end+1) = v;
     dst = dst + A(:,u(end));
-    Udst(:,end) = Udst(:,end)*exp(-gap);
-    Udst(:,end+1) = Udst(:,end);
-    Udst(u(end),end) = Udst(u(end),end)+1;
+    eta(:,end) = eta(:,end)*exp(-gap);
+    eta(:,end+1) = eta(:,end);
+    eta(u(end),end) = eta(u(end),end)+1;
 end
 t=t(2:end);
 u=u(2:end);
-Udst = Udst(:,1:end-1);
+eta = eta(:,1:end-1);
 end
