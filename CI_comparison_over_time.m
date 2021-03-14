@@ -19,7 +19,7 @@ for k=1:length(t_tic)
         ub_a(k,i,:) = reshape(A_MLE(k,i,:),1,D) - norminv(epsilon/2)*sqrt(diag(Iinv))';
         lb_a(k,i,:) = reshape(A_MLE(k,i,:),1,D) + norminv(epsilon/2)*sqrt(diag(Iinv))';
     end
-    [lb_p(k,:,:),ub_p(k,:,:)] = polyhedral22(max(0,reshape(A_MLE(k,:,:),D,D)),mu,t(1:idx),u(1:idx),t_tic(k),eta(:,1:idx),epsilon*D*D);
+    [lb_p(k,:,:),ub_p(k,:,:)] = polyhedral2(max(0,reshape(A_MLE(k,:,:),D,D)),mu,t(1:idx),u(1:idx),t_tic(k),eta(:,1:idx),epsilon*D*D);
 end 
 %plot CI over time.
 h = figure(1);
